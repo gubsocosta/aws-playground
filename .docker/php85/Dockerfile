@@ -1,7 +1,7 @@
 # ============================
 # Build Stage
 # ============================
-FROM php:8.4-fpm-alpine as builder
+FROM php:8.5-fpm-alpine AS builder
 
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -44,7 +44,6 @@ RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
     chmod +x /usr/local/bin/install-php-extensions && \
     install-php-extensions \
         bcmath \
-        gd \
         igbinary \
         imagick \
         ldap \
@@ -59,13 +58,12 @@ RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
         xdebug \
         zip
 
-# Verificar extensões no build stage
 RUN php -m && echo "=== Build stage extensions OK ==="
 
 # ============================
 # Production Stage
 # ============================
-FROM php:8.4-fpm-alpine as production
+FROM php:8.5-fpm-alpine AS production
 
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -98,26 +96,18 @@ COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 
 # Copy composer
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Verificar se extensões foram copiadas corretamente
 RUN php -m && echo "=== Production stage extensions OK ==="
 
 WORKDIR /var/www
 
-# Create non-root user
-RUN addgroup -g 1000 appuser && \
-    adduser -D -u 1000 -G appuser appuser && \
-    mkdir -p /home/appuser && \
-    chown -R appuser:appuser /home/appuser /var/www
+# Copy existing application directory permissions
+COPY --chown=www-data:www-data ./laravel-app /var/www
 
-USER appuser
+# Change current user to www
+USER www-data
 
-ENV HOME=/home/appuser \
-    COMPOSER_HOME=/home/appuser/.composer \
-    PATH="/home/appuser/.composer/vendor/bin:${PATH}"
-
-RUN composer global require laravel/installer --no-interaction --no-progress && \
-    composer clear-cache
-
+# Expose port 9000 and start php-fpm server
+EXPOSE 9000
 CMD ["php-fpm"]

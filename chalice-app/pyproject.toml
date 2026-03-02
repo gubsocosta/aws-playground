@@ -1,0 +1,3 @@
+[tool.coverage.run]
+source = ["chalicelib"]
+relative_files = true
