@@ -21,41 +21,47 @@ git clone https://github.com/gubsocosta/aws-playground.git
 cd aws-playground
 ```
 
-2. Inicie os serviços com Docker Compose:
+2. De permissão de execução para o script de configuração:
 ```bash
-   docker compose up -d --build
+chmod +x setup.sh
 ```
 
-3. Para acessar uma das aplicações, use os seguintes comandos:
-- Para acessar o container do Laravel:
+3. Execute o script de configuração:
 ```bash
-docker compose exec -it laravel-app bash
+./setup.sh
 ```
-- Para acessar o container do Chalice:
+4. Apos a configuração, o ambiente estará pronto para uso. Você pode acessar as aplicações Laravel e Chalice nos seguintes endereços:
+
+- Laravel: http://localhost:8001
+- Chalice: http://localhost:8000
+
+Ou acessar os containers diretamente:
 ```bash
-docker compose exec -it chalice-app sh
+docker compose exec -it laravel-app ash
+docker compose exec -it chalice-app bash
 ```
-- Para acessar o container contendo o aws-cli:
-```bash
-docker compose exec -it aws-cli sh
-```
+  
 ## Visualizando os logs no CloudWatch
 1. Acesse o container do aws-cli:
 ```bash
 docker compose exec -it aws-cli sh
 ```
+
 2. Liste os grupos de logs para verificar se o grupo do Laravel foi criado:
 ```bash
 aws logs describe-log-groups
 ```
+
 3. Liste os streams de logs dentro do grupo do Laravel para verificar se o stream foi criado:
 ```bash
 aws logs describe-log-streams --log-group-name laravel_app
 ```
+
 4. Visualize os logs do stream para verificar se os logs estão sendo enviados corretamente:
 ```bash
 aws logs get-log-events --log-group-name laravel_app --log-stream-name laravel_app
 ```
+
 5. Para visualizar os logs em tempo real, você pode usar o comando `aws logs tail`:
 ```bash
 aws logs tail laravel_app --follow
