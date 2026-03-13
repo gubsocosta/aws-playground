@@ -23,7 +23,6 @@ Route::post('/logs-with-context', static function (Request $request) {
     $context = [
         'param_1' => $param1,
         'param_2' => $param2,
-        'timestamp' => now()->toIso8601String(),
     ];
 
     Log::info('Log with context', $context);
@@ -39,7 +38,6 @@ Route::get('/logs-with-exception', static function () {
         $context = [
             'error' => $th->getMessage(),
             'trace' => $th->getTraceAsString(),
-            'timestamp' => now()->toIso8601String(),
         ];
 
         Log::error('An exception occurred', $context);
