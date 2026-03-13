@@ -66,3 +66,21 @@ aws logs get-log-events --log-group-name local/laravel_app --log-stream-name lar
 ```bash
 aws logs tail local/laravel_app --follow
 ```
+
+## Executando a aplicação Chalice
+1. Acesse o container do chalice-app:
+```bash
+docker compose exec -it chalice-app bash
+```
+
+2. Execute a aplicação Chalice localmente:
+```bash
+chalice local --host 0.0.0.0 --port 8000
+```
+
+3. Acesse a aplicação Chalice no navegador ou via curl:
+```bash
+curl -XGET 'http://localhost:8000' \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json'
+```
