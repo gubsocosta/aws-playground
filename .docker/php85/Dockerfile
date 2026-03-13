@@ -1,7 +1,7 @@
 # ============================
 # Build Stage
 # ============================
-FROM php:8.5-fpm-alpine AS builder
+FROM php:8.5-cli-alpine AS builder
 
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -63,7 +63,7 @@ RUN php -m && echo "=== Build stage extensions OK ==="
 # ============================
 # Production Stage
 # ============================
-FROM php:8.5-fpm-alpine AS production
+FROM php:8.5-cli-alpine AS production
 
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -105,9 +105,9 @@ WORKDIR /var/www
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data ./laravel-app /var/www
 
-# Change current user to www
+# Change current user to www-data
 USER www-data
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
-CMD ["php-fpm"]
+EXPOSE 8000
+
+CMD ["tail", "-f", "/dev/null"]

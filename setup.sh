@@ -18,24 +18,16 @@ fi
 echo "🚀 Iniciando os containers..."
 docker compose up -d --build
 
-## Realiza a instalação das dependências do laravel-app
-echo "📦 Instalando as dependências do laravel-app..."
-docker compose exec laravel-app sh -c "composer install"
+## Realiza a instalação das dependências do laravel_app
+echo "📦 Instalando as dependências do laravel_app..."
+docker compose exec laravel_app sh -c "composer install"
 
-## Cria o arquivo .env do laravel-app
-echo "📝 Criando o arquivo .env do laravel-app..."
-docker compose exec laravel-app sh -c "cp .env.example .env"
+## Cria o arquivo .env do laravel_app
+echo "📝 Criando o arquivo .env do laravel_app..."
+docker compose exec laravel_app sh -c "cp .env.example .env"
 
-## Gera a chave de aplicação do laravel-app
-echo "🔑 Gerando a chave de aplicação do laravel-app..."
-docker compose exec laravel-app sh -c "php artisan key:generate"
-
-## Cria ambiente virtual do chalice-app
-echo "🐍 Criando ambiente virtual do chalice-app..."
-docker compose exec chalice-app sh -c "python -m venv .venv"
-
-## Instala as dependências do chalice-app
-echo "📥 Instalando as dependências do chalice-app..."
-docker compose exec chalice-app sh -c ". .venv/bin/activate && pip install -r requirements.txt && pip install -r requirements-dev.txt"
+## Gera a chave de aplicação do laravel_app
+echo "🔑 Gerando a chave de aplicação do laravel_app..."
+docker compose exec laravel_app sh -c "php artisan key:generate"
 
 echo "✅ Setup concluído"

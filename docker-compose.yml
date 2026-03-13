@@ -9,7 +9,7 @@ services:
       - ./laravel-app:/var/www
       - ./.docker/php85/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:ro
     ports:
-      - "${LARAVEL_APP_PORT:-9000}:9000"
+      - "${LARAVEL_APP_PORT:-8000}:8000"
       - "${XDEBUG_CLIENT_PORT:-9003}:9003"
     environment:
       TZ: ${TZ:-UTC}
@@ -26,10 +26,6 @@ services:
       XDEBUG_LOG: "${XDEBUG_LOG:-/tmp/xdebug.log}"
       XDEBUG_LOG_LEVEL: "${XDEBUG_LOG_LEVEL:-0}"
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
       localstack:
         condition: service_started
     networks:
@@ -49,26 +45,12 @@ services:
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
       AWS_ENDPOINT_URL: ${AWS_ENDPOINT_URL:-http://localstack:4566}
     ports:
-      - "${CHALICE_APP_PORT:-8000}:8000"
+      - "${CHALICE_APP_PORT:-8001}:8001"
     depends_on:
       localstack:
         condition: service_started
     networks:
       - playground-net
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    ports:
-      - "${NGINX_PORT:-8080}:80"
-      - "8001-8010:8001-8010"
-    volumes:
-      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
-    networks:
-      - playground-net
-    depends_on:
-      laravel_app:
-        condition: service_started
 
   localstack:
     image: localstack/localstack
@@ -103,48 +85,8 @@ services:
       localstack:
         condition: service_started
 
-  redis:
-    image: "redis:alpine"
-    container_name: redis
-    ports:
-      - "${REDIS_PORT:-6380}:6379"
-    volumes:
-      - "redis-data:/data"
-    networks:
-      - playground-net
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  mysql:
-    build: ./.docker/mysql
-    container_name: mysql
-    ports:
-      - "${DB_PORT:-3307}:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-}"
-      MYSQL_ROOT_HOST: "%"
-      MYSQL_DATABASE: "${DB_DATABASE:-laravel}"
-      MYSQL_USER: "${DB_USERNAME:-laravel}"
-      MYSQL_PASSWORD: "${DB_PASSWORD:-secret}"
-      MYSQL_ALLOW_EMPTY_PASSWORD: 1
-      MYSQL_EXTRA_OPTIONS: "${MYSQL_EXTRA_OPTIONS:-}"
-    volumes:
-      - "mysql-data:/var/lib/mysql"
-    networks:
-      - playground-net
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-p${DB_ROOT_PASSWORD:-}"]
-      retries: 3
-      timeout: 5s
-      interval: 5s
-
 volumes:
   localstack-data:
-  redis-data:
-  mysql-data:
 
 networks:
   playground-net:
